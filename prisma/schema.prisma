@@ -1,0 +1,40 @@
+// FUTURE USE — not yet connected.
+// Session data currently lives in Redis via lib/sessionStore.ts.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model SplitSession {
+  id            String        @id
+  payerVpa      String?
+  payerMemberId String?
+  createdAt     DateTime      @default(now())
+  members       Member[]
+  items         InvoiceItem[]
+}
+
+model Member {
+  id        String       @id
+  name      String
+  sessionId String
+  session   SplitSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+model InvoiceItem {
+  id          String       @id
+  name        String
+  quantity    Int
+  totalAmount Float
+  sharedBy    String[]
+  sessionId   String
+  session     SplitSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
